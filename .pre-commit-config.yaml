@@ -1,0 +1,22 @@
+# Local hooks only — they use each app's own toolchain, so hook versions can
+# never drift from what CI and developers run.
+# Setup: pip install pre-commit && pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check (apps/api)
+        entry: apps/api/.venv/bin/ruff check --fix
+        language: system
+        files: ^apps/api/.*\.py$
+      - id: ruff-format
+        name: ruff format (apps/api)
+        entry: apps/api/.venv/bin/ruff format
+        language: system
+        files: ^apps/api/.*\.py$
+      - id: prettier
+        name: prettier (apps/web)
+        entry: npx --prefix apps/web prettier --write
+        language: system
+        files: ^apps/web/
+        exclude: ^apps/web/(node_modules|\.next|src/components/ui|package-lock\.json)
