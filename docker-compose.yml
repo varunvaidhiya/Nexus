@@ -25,6 +25,7 @@ services:
     build: ./apps/api
     environment:
       NEXUS_ENVIRONMENT: ${NEXUS_ENVIRONMENT:-prod}
+      NEXUS_MASTER_KEY: ${NEXUS_MASTER_KEY:-}
       NEXUS_LOG_LEVEL: ${NEXUS_LOG_LEVEL:-INFO}
       NEXUS_CORS_ORIGINS: '["${NEXUS_WEB_ORIGIN:-http://localhost:3000}"]'
       NEXUS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-nexus}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-nexus}
