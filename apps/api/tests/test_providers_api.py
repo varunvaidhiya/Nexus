@@ -35,7 +35,8 @@ def client() -> Iterator[TestClient]:
         conn.execute(text("DELETE FROM provider_key"))
     engine.dispose()
 
-    with TestClient(create_app()) as test_client:
+    token = os.environ["NEXUS_AUTH_TOKEN"]
+    with TestClient(create_app(), headers={"Authorization": f"Bearer {token}"}) as test_client:
         yield test_client
 
 

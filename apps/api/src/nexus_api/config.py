@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://nexus:nexus@localhost:5432/nexus"
     # 64 hex chars (32 bytes); encrypts provider keys at rest. Never stored in DB.
     master_key: SecretStr | None = None
+    # Bearer token gating every route except /healthz. Unset = API refuses requests.
+    auth_token: SecretStr | None = None
 
 
 @lru_cache
