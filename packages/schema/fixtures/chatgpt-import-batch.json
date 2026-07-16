@@ -1,0 +1,30 @@
+{
+  "schema_version": "nexus.ingest.v1",
+  "source": {
+    "kind": "import",
+    "name": "chatgpt-export-2026-07",
+    "ingest_tier": "C"
+  },
+  "conversations": [
+    {
+      "external_id": "conv-8b1e77aa-90d2-4f6e",
+      "title": "Compare vector databases",
+      "model": "gpt-4o",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What should I consider when choosing between pgvector and a dedicated vector DB?"
+        },
+        {
+          "role": "assistant",
+          "content": "If your data already lives in Postgres and stays under a few million vectors, pgvector keeps operations simple; dedicated stores win on scale and advanced filtering.",
+          "token_count": 96
+        }
+      ]
+    },
+    {
+      "external_id": "conv-empty-edge-case",
+      "messages": []
+    }
+  ]
+}
