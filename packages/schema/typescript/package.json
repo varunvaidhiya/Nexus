@@ -1,0 +1,13 @@
+{
+  "name": "@nexus/schema",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Canonical Nexus ingest types (TypeScript binding of ingest.v1.schema.json).",
+  "types": "index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

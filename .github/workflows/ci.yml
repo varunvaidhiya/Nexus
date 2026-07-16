@@ -50,6 +50,40 @@ jobs:
       - name: Pytest
         run: pytest
 
+  schema:
+    name: Schema package (Python + TypeScript bindings)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: packages/schema/python/pyproject.toml
+      - name: Install (python)
+        working-directory: packages/schema/python
+        run: pip install -e ".[dev]"
+      - name: Ruff
+        working-directory: packages/schema/python
+        run: ruff check . && ruff format --check .
+      - name: Mypy
+        working-directory: packages/schema/python
+        run: mypy
+      - name: Pytest (fixtures vs JSON Schema + Pydantic)
+        working-directory: packages/schema/python
+        run: pytest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/schema/typescript/package-lock.json
+      - name: Install (typescript)
+        working-directory: packages/schema/typescript
+        run: npm ci
+      - name: Typecheck fixtures
+        working-directory: packages/schema/typescript
+        run: npm run typecheck
+
   web:
     name: Web (lint · types · format · build)
     runs-on: ubuntu-latest
