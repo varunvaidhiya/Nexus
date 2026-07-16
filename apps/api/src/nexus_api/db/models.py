@@ -2,7 +2,7 @@
 
 import enum
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from pgvector.sqlalchemy import Vector
@@ -278,7 +278,9 @@ class ProviderKey(Base):
     encrypted_key: Mapped[bytes] = mapped_column(LargeBinary)
     models: Mapped[list[str]] = mapped_column(ARRAY(Text), server_default=text("'{}'"))
     monthly_budget_usd: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
-    spend_usd: Mapped[Decimal] = mapped_column(Numeric(10, 2), server_default=text("0"))
+    spend_usd: Mapped[Decimal] = mapped_column(Numeric(10, 6), server_default=text("0"))
+    # First day of the month spend_usd belongs to; spend resets on rollover.
+    spend_month: Mapped[date | None]
     created_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
 
 
