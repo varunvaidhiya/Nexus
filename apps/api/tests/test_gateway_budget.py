@@ -36,12 +36,8 @@ def test_pricing_unknown_model_is_zero() -> None:
 def db_session() -> Session:
     if not TEST_DATABASE_URL:
         pytest.skip("NEXUS_TEST_DATABASE_URL not set")
-    from nexus_api.db.base import Base
-
+    # Schema is provided by the session-scoped migrated_db fixture (conftest).
     engine = create_engine(TEST_DATABASE_URL)
-    with engine.begin() as conn:
-        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-    Base.metadata.create_all(engine)
     with Session(engine) as session, session.begin():
         session.execute(text("DELETE FROM provider_key"))
         yield session

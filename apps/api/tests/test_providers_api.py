@@ -20,17 +20,14 @@ def client() -> Iterator[TestClient]:
     os.environ["NEXUS_DATABASE_URL"] = TEST_DATABASE_URL
 
     from nexus_api.config import get_settings
-    from nexus_api.db.base import Base
     from nexus_api.db.session import get_engine
     from nexus_api.main import create_app
 
     get_settings.cache_clear()
     get_engine.cache_clear()
 
+    # Schema is provided by the session-scoped migrated_db fixture (conftest).
     engine = create_engine(TEST_DATABASE_URL)
-    with engine.begin() as conn:
-        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-    Base.metadata.create_all(engine)
     with engine.begin() as conn:
         conn.execute(text("DELETE FROM provider_key"))
     engine.dispose()
