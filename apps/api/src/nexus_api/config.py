@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     master_key: SecretStr | None = None
     # Bearer token gating every route except /healthz. Unset = API refuses requests.
     auth_token: SecretStr | None = None
+    # Per-provider base URL overrides (JSON object), e.g. for local
+    # OpenAI-compatible servers: {"openai": "http://localhost:11434/v1"}
+    provider_base_urls: dict[str, str] = {}
 
 
 @lru_cache
