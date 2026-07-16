@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -39,6 +42,9 @@ export default function Home() {
             Personal AI control tower. Self-hosted, single-user, private by
             default.
           </p>
+          <div>
+            <Button render={<Link href="/settings" />}>Open settings</Button>
+          </div>
         </div>
         <div className="grid w-full gap-4 sm:grid-cols-2">
           {pillars.map((pillar) => (
