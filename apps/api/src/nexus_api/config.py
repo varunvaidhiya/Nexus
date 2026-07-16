@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     environment: Literal["dev", "prod"] = "dev"
     log_level: str = "INFO"
     cors_origins: list[str] = ["http://localhost:3000"]
+    database_url: str = "postgresql+psycopg://nexus:nexus@localhost:5432/nexus"
 
 
 @lru_cache
