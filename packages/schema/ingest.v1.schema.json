@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexus.local/schema/ingest.v1.schema.json",
+  "title": "Nexus ingest batch (v1)",
+  "description": "Canonical payload every ingestion tier (companion agent, browser extension, export importer, native chat) POSTs to /ingest. Source of truth for the Python and TypeScript bindings in this package.",
+  "type": "object",
+  "required": ["schema_version", "source", "conversations"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "nexus.ingest.v1",
+      "description": "Contract version; bump only with a new schema file."
+    },
+    "source": { "$ref": "#/$defs/Source" },
+    "conversations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Conversation" }
+    }
+  },
+  "$defs": {
+    "Source": {
+      "type": "object",
+      "required": ["kind", "ingest_tier"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "claude_code",
+            "cursor",
+            "codex",
+            "opencode",
+            "droid",
+            "chatgpt",
+            "gemini",
+            "claude_web",
+            "deepseek",
+            "minimax",
+            "qwen",
+            "native",
+            "import"
+          ]
+        },
+        "name": {
+          "type": ["string", "null"],
+          "maxLength": 200,
+          "description": "Human-readable label, e.g. the machine or profile the data came from."
+        },
+        "ingest_tier": { "enum": ["A", "B", "C", "D"] }
+      }
+    },
+    "Conversation": {
+      "type": "object",
+      "required": ["external_id", "messages"],
+      "additionalProperties": false,
+      "properties": {
+        "external_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Stable ID in the source system; dedupe key together with the source."
+        },
+        "title": { "type": ["string", "null"], "maxLength": 500 },
+        "model": { "type": ["string", "null"], "maxLength": 200 },
+        "tool": { "type": ["string", "null"], "maxLength": 200 },
+        "project": {
+          "type": ["string", "null"],
+          "description": "Repo/workspace attribution if known."
+        },
+        "started_at": { "type": ["string", "null"], "format": "date-time" },
+        "updated_at": { "type": ["string", "null"], "format": "date-time" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        },
+        "messages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Message" }
+        }
+      }
+    },
+    "Message": {
+      "type": "object",
+      "required": ["role", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "external_id": {
+          "type": ["string", "null"],
+          "maxLength": 500,
+          "description": "Message ID in the source system, when it has one."
+        },
+        "role": { "enum": ["user", "assistant", "tool", "system"] },
+        "content": { "type": "string" },
+        "token_count": { "type": ["integer", "null"], "minimum": 0 },
+        "created_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    }
+  }
+}

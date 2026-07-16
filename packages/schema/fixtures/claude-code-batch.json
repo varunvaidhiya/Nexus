@@ -1,0 +1,41 @@
+{
+  "schema_version": "nexus.ingest.v1",
+  "source": {
+    "kind": "claude_code",
+    "name": "varun-laptop",
+    "ingest_tier": "A"
+  },
+  "conversations": [
+    {
+      "external_id": "session-2f8a1c3d",
+      "title": "Fix flaky auth test",
+      "model": "claude-sonnet-5",
+      "tool": "claude_code",
+      "project": "github.com/varunvaidhiya/Nexus",
+      "started_at": "2026-07-15T09:12:00Z",
+      "updated_at": "2026-07-15T09:47:33Z",
+      "tags": ["testing", "auth"],
+      "messages": [
+        {
+          "external_id": "msg-001",
+          "role": "user",
+          "content": "The auth test fails intermittently in CI — can you find out why?",
+          "created_at": "2026-07-15T09:12:00Z"
+        },
+        {
+          "external_id": "msg-002",
+          "role": "assistant",
+          "content": "The test seeds a token with a 1-second expiry and asserts after a network call; under CI load it expires first. I'll extend the expiry and mock the clock.",
+          "token_count": 128,
+          "created_at": "2026-07-15T09:13:41Z"
+        },
+        {
+          "external_id": "msg-003",
+          "role": "tool",
+          "content": "pytest tests/test_auth.py::test_token_refresh - 1 passed",
+          "created_at": "2026-07-15T09:15:02Z"
+        }
+      ]
+    }
+  ]
+}
