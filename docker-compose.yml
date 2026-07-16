@@ -1,0 +1,50 @@
+name: nexus
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nexus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-nexus}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-nexus} -d ${POSTGRES_DB:-nexus}",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./apps/api
+    environment:
+      NEXUS_ENVIRONMENT: ${NEXUS_ENVIRONMENT:-prod}
+      NEXUS_LOG_LEVEL: ${NEXUS_LOG_LEVEL:-INFO}
+      NEXUS_CORS_ORIGINS: '["${NEXUS_WEB_ORIGIN:-http://localhost:3000}"]'
+      NEXUS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-nexus}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-nexus}
+    ports:
+      - "${NEXUS_API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        # Baked into the client bundle at build time; rebuild after changing it.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "${NEXUS_WEB_PORT:-3000}:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:

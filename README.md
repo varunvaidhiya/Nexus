@@ -10,6 +10,20 @@
 
 ---
 
+## Quickstart
+
+```bash
+cp .env.example .env   # set POSTGRES_PASSWORD (and anything else you want to override)
+docker compose up --build
+```
+
+- Web UI: http://localhost:3000
+- API: http://localhost:8000/healthz
+- Postgres (pgvector): localhost:5432
+
+For per-app development outside Docker, see [apps/web](apps/web/README.md) and
+[apps/api](apps/api/README.md).
+
 ## The problem
 
 Your AI work is scattered across ChatGPT, Gemini, Claude, DeepSeek, MiniMax, and
