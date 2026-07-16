@@ -5,6 +5,8 @@ from nexus_api import __version__
 from nexus_api.auth import require_auth
 from nexus_api.config import Settings, get_settings
 from nexus_api.logging import configure_logging
+from nexus_api.routers.chat import router as chat_router
+from nexus_api.routers.conversations import router as conversations_router
 from nexus_api.routers.providers import router as providers_router
 
 
@@ -26,7 +28,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"status": "ok", "version": __version__}
 
     # Every router mounted here is gated; only /healthz above is public.
-    app.include_router(providers_router, dependencies=[Depends(require_auth)])
+    gated = [Depends(require_auth)]
+    app.include_router(providers_router, dependencies=gated)
+    app.include_router(chat_router, dependencies=gated)
+    app.include_router(conversations_router, dependencies=gated)
 
     return app
 
