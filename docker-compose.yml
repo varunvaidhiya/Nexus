@@ -36,6 +36,23 @@ services:
       db:
         condition: service_healthy
 
+  worker:
+    build: ./apps/api
+    command: ["python", "-m", "nexus_api.worker"]
+    environment:
+      NEXUS_ENVIRONMENT: ${NEXUS_ENVIRONMENT:-prod}
+      NEXUS_LOG_LEVEL: ${NEXUS_LOG_LEVEL:-INFO}
+      NEXUS_MASTER_KEY: ${NEXUS_MASTER_KEY:-}
+      NEXUS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-nexus}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-nexus}
+      NEXUS_SYNC_INTERVAL_SECONDS: ${NEXUS_SYNC_INTERVAL_SECONDS:-300}
+      NEXUS_EMBEDDING_PROVIDER: ${NEXUS_EMBEDDING_PROVIDER:-openai}
+      NEXUS_EMBEDDING_MODEL: ${NEXUS_EMBEDDING_MODEL:-text-embedding-3-small}
+      NEXUS_SUMMARY_PROVIDER: ${NEXUS_SUMMARY_PROVIDER:-anthropic}
+      NEXUS_SUMMARY_MODEL: ${NEXUS_SUMMARY_MODEL:-claude-haiku-4-5}
+    depends_on:
+      db:
+        condition: service_healthy
+
   web:
     build:
       context: ./apps/web

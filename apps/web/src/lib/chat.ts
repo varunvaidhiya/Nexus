@@ -7,6 +7,20 @@ export interface ChatRequestBody {
   provider: string;
   model: string;
   message: string;
+  use_context?: boolean;
+}
+
+export interface ContextUsed {
+  profile: boolean;
+  notes: number;
+  messages: number;
+  text: string;
+}
+
+export interface MetaEvent {
+  conversation_id: string;
+  user_message_id: string;
+  context: ContextUsed | null;
 }
 
 export interface DoneEvent {
@@ -27,7 +41,7 @@ export interface StreamError {
 }
 
 export interface ChatCallbacks {
-  onMeta: (conversationId: string) => void;
+  onMeta: (meta: MetaEvent) => void;
   onDelta: (text: string) => void;
   onDone: (done: DoneEvent) => void;
   onError: (error: StreamError) => void;
@@ -80,7 +94,7 @@ export async function streamChat(
   const handle = (name: string, payload: string) => {
     const data = JSON.parse(payload) as Record<string, unknown>;
     if (name === "meta") {
-      callbacks.onMeta(data.conversation_id as string);
+      callbacks.onMeta(data as unknown as MetaEvent);
     } else if (name === "delta") {
       callbacks.onDelta(data.text as string);
     } else if (name === "done") {

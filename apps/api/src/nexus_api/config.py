@@ -22,6 +22,18 @@ class Settings(BaseSettings):
     # OpenAI-compatible servers: {"openai": "http://localhost:11434/v1"}
     provider_base_urls: dict[str, str] = {}
 
+    # --- Context engine (Phase 2) ---
+    # Embeddings run against an OpenAI-compatible /embeddings endpoint of this
+    # provider (its API key must be stored in settings). 1536 dims per schema.
+    embedding_provider: str = "openai"
+    embedding_model: str = "text-embedding-3-small"
+    # Cheap model used for summaries, fact distillation, and the profile.
+    summary_provider: str = "anthropic"
+    summary_model: str = "claude-haiku-4-5"
+    # Background worker cadence and retrieval budget.
+    sync_interval_seconds: int = 300
+    context_token_budget: int = 2000
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -117,6 +117,9 @@ class Conversation(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
     tags: Mapped[list[str]] = mapped_column(ARRAY(Text), server_default=text("'{}'"))
     summary: Mapped[str | None] = mapped_column(Text)
+    # When the summary/distillation pipeline last processed this conversation;
+    # NULL or older than updated_at means it needs (re)processing.
+    summarized_at: Mapped[datetime | None]
 
     source: Mapped[Source] = relationship(back_populates="conversations")
     messages: Mapped[list["Message"]] = relationship(
@@ -282,6 +285,32 @@ class ProviderKey(Base):
     # First day of the month spend_usd belongs to; spend resets on rollover.
     spend_month: Mapped[date | None]
     created_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
+
+
+class JobStatus(enum.Enum):
+    running = "running"
+    success = "success"
+    error = "error"
+    skipped = "skipped"
+
+
+class JobRun(Base):
+    """Bookkeeping for background jobs (embed/summarize/distill/profile)."""
+
+    __tablename__ = "job_run"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    name: Mapped[str] = mapped_column(String(100))
+    status: Mapped[JobStatus] = mapped_column(
+        _enum(JobStatus, "job_status"), server_default="running"
+    )
+    detail: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
+    finished_at: Mapped[datetime | None]
+
+    __table_args__ = (Index("ix_job_run_name_started_at", "name", "started_at"),)
 
 
 class ProfileSnapshot(Base):
