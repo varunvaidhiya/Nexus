@@ -42,8 +42,11 @@ export default function Home() {
             Personal AI control tower. Self-hosted, single-user, private by
             default.
           </p>
-          <div>
-            <Button render={<Link href="/settings" />}>Open settings</Button>
+          <div className="flex justify-center gap-2">
+            <Button render={<Link href="/chat" />}>Open chat</Button>
+            <Button variant="outline" render={<Link href="/settings" />}>
+              Settings
+            </Button>
           </div>
         </div>
         <div className="grid w-full gap-4 sm:grid-cols-2">
