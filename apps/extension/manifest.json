@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Nexus Capture",
+  "version": "0.1.0",
+  "description": "Best-effort capture of AI web chats (allowlisted sites only) into your self-hosted Nexus.",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://claude.ai/*"
+  ],
+  "optional_host_permissions": ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content/common.js", "content/chatgpt.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://claude.ai/*"],
+      "js": ["content/common.js", "content/claude.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

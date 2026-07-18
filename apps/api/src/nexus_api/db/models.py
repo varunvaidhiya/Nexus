@@ -142,6 +142,8 @@ class Message(Base):
     conversation_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("conversation.id", ondelete="CASCADE")
     )
+    # ID in the source system, for ingest dedupe (hash fallback when absent).
+    external_id: Mapped[str | None] = mapped_column(String(500))
     role: Mapped[MessageRole] = mapped_column(_enum(MessageRole, "message_role"))
     content: Mapped[str] = mapped_column(Text)
     token_count: Mapped[int | None]
@@ -285,6 +287,22 @@ class ProviderKey(Base):
     # First day of the month spend_usd belongs to; spend resets on rollover.
     spend_month: Mapped[date | None]
     created_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
+
+
+class DeviceToken(Base):
+    """Bearer credentials for ingest sources (agent, extension). Only a
+    SHA-256 hash is stored; the plaintext is shown once at creation."""
+
+    __tablename__ = "device_token"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    name: Mapped[str] = mapped_column(String(200))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
+    last_used_at: Mapped[datetime | None]
+    revoked_at: Mapped[datetime | None]
 
 
 class JobStatus(enum.Enum):

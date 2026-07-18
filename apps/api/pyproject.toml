@@ -15,6 +15,11 @@ dependencies = [
     "pgvector>=0.3",
     "cryptography>=42.0",
     "httpx>=0.27",
+    # Multipart form parsing for POST /import file uploads.
+    "python-multipart>=0.0.9",
+    # Canonical ingest contract; installed from packages/schema/python
+    # (editable in dev/CI, copied into the Docker image).
+    "nexus-schema",
 ]
 
 [project.optional-dependencies]

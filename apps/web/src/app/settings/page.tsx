@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { DevicesSection } from "@/components/devices-section";
+import { SourcesSection } from "@/components/sources-section";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -87,6 +89,10 @@ export default function SettingsPage() {
           ))
         )}
       </section>
+
+      <SourcesSection />
+
+      <DevicesSection />
 
       <JobsSection />
     </div>

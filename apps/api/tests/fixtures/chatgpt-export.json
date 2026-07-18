@@ -1,0 +1,51 @@
+[
+  {
+    "title": "Explain monads",
+    "create_time": 1751000000.0,
+    "update_time": 1751000300.0,
+    "conversation_id": "cgpt-conv-1",
+    "default_model_slug": "gpt-5",
+    "mapping": {
+      "root": {"id": "root", "message": null, "children": ["n1"]},
+      "n1": {
+        "id": "n1",
+        "message": {
+          "id": "msg-sys",
+          "author": {"role": "system"},
+          "create_time": null,
+          "content": {"content_type": "text", "parts": [""]}
+        },
+        "children": ["n2"]
+      },
+      "n2": {
+        "id": "n2",
+        "message": {
+          "id": "msg-u1",
+          "author": {"role": "user"},
+          "create_time": 1751000010.0,
+          "content": {"content_type": "text", "parts": ["What is a monad?"]}
+        },
+        "children": ["n3"]
+      },
+      "n3": {
+        "id": "n3",
+        "message": {
+          "id": "msg-a1",
+          "author": {"role": "assistant"},
+          "create_time": 1751000020.0,
+          "content": {"content_type": "text", "parts": ["A monad is a monoid in the category of endofunctors."]}
+        },
+        "children": []
+      }
+    }
+  },
+  {
+    "title": "Empty chat",
+    "create_time": 1751001000.0,
+    "update_time": 1751001000.0,
+    "conversation_id": "cgpt-conv-2",
+    "mapping": {
+      "root": {"id": "root", "message": null, "children": []}
+    }
+  }
+]

@@ -2,13 +2,16 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from nexus_api import __version__
-from nexus_api.auth import require_auth
+from nexus_api.auth import require_auth, require_ingest_auth
 from nexus_api.config import Settings, get_settings
 from nexus_api.logging import configure_logging
 from nexus_api.routers.chat import router as chat_router
 from nexus_api.routers.conversations import router as conversations_router
+from nexus_api.routers.devices import router as devices_router
+from nexus_api.routers.ingest import router as ingest_router
 from nexus_api.routers.providers import router as providers_router
 from nexus_api.routers.search import router as search_router
+from nexus_api.routers.sources import router as sources_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -34,6 +37,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(chat_router, dependencies=gated)
     app.include_router(conversations_router, dependencies=gated)
     app.include_router(search_router, dependencies=gated)
+    app.include_router(devices_router, dependencies=gated)
+    app.include_router(sources_router, dependencies=gated)
+    # Ingest additionally accepts device tokens (agent/extension).
+    app.include_router(ingest_router, dependencies=[Depends(require_ingest_auth)])
 
     return app
 
