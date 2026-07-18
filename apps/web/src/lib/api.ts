@@ -51,6 +51,29 @@ export async function apiFetch<T>(
   return (await response.json()) as T;
 }
 
+export async function apiUpload<T>(path: string, file: File): Promise<T> {
+  const token = getToken();
+  const body = new FormData();
+  body.append("file", file);
+  // No Content-Type header: the browser sets the multipart boundary itself.
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body,
+  });
+  if (!response.ok) {
+    let detail = response.statusText;
+    try {
+      const errorBody = (await response.json()) as { detail?: string };
+      if (errorBody.detail) detail = errorBody.detail;
+    } catch {
+      // non-JSON error body; keep statusText
+    }
+    throw new ApiError(response.status, detail);
+  }
+  return (await response.json()) as T;
+}
+
 export interface Provider {
   id: string;
   provider: string;

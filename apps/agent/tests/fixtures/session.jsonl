@@ -1,0 +1,8 @@
+{"type":"summary","summary":"Fix flaky login test","leafUuid":"aaaa-1"}
+{"type":"user","uuid":"u-1","timestamp":"2026-07-01T10:00:00Z","cwd":"/home/user/webapp","message":{"role":"user","content":"The login test is flaky, can you fix it?"}}
+{"type":"assistant","uuid":"a-1","timestamp":"2026-07-01T10:00:05Z","cwd":"/home/user/webapp","message":{"role":"assistant","model":"claude-sonnet-5","content":[{"type":"text","text":"Looking at the test now."},{"type":"tool_use","id":"t1","name":"Read","input":{"file_path":"tests/login.spec.ts"}}]}}
+{"type":"user","uuid":"u-2","timestamp":"2026-07-01T10:00:06Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"...file contents..."}]}}
+{"type":"assistant","uuid":"a-2","timestamp":"2026-07-01T10:00:12Z","message":{"role":"assistant","model":"claude-sonnet-5","content":[{"type":"text","text":"The test races the redirect; I'll await the navigation promise."}]}}
+{"type":"progress","data":{"whatever":true}}
+not even json
+{"type":"user","uuid":"u-3","timestamp":"2026-07-01T10:01:00Z","message":{"role":"user","content":"Great, thanks!"}}

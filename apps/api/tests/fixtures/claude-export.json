@@ -1,0 +1,32 @@
+[
+  {
+    "uuid": "claude-conv-1",
+    "name": "Trip planning",
+    "created_at": "2026-06-01T09:00:00Z",
+    "updated_at": "2026-06-01T09:30:00Z",
+    "chat_messages": [
+      {
+        "uuid": "cm-1",
+        "sender": "human",
+        "text": "Help me plan a trip to Kyoto.",
+        "created_at": "2026-06-01T09:00:00Z"
+      },
+      {
+        "uuid": "cm-2",
+        "sender": "assistant",
+        "text": "",
+        "content": [
+          {"type": "text", "text": "Sure — how many days do you have?"},
+          {"type": "tool_use", "name": "search"}
+        ],
+        "created_at": "2026-06-01T09:00:10Z"
+      },
+      {
+        "uuid": "cm-3",
+        "sender": "human",
+        "text": "Five days in October.",
+        "created_at": "2026-06-01T09:01:00Z"
+      }
+    ]
+  }
+]

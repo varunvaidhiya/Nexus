@@ -22,7 +22,9 @@ services:
       retries: 10
 
   api:
-    build: ./apps/api
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
     environment:
       NEXUS_ENVIRONMENT: ${NEXUS_ENVIRONMENT:-prod}
       NEXUS_MASTER_KEY: ${NEXUS_MASTER_KEY:-}
@@ -37,7 +39,9 @@ services:
         condition: service_healthy
 
   worker:
-    build: ./apps/api
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
     command: ["python", "-m", "nexus_api.worker"]
     environment:
       NEXUS_ENVIRONMENT: ${NEXUS_ENVIRONMENT:-prod}

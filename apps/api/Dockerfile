@@ -1,10 +1,15 @@
+# Build context is the repo root (the image needs packages/schema too):
+#   docker build -f apps/api/Dockerfile .
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies first so they cache independently of source changes.
-COPY pyproject.toml README.md ./
-COPY src ./src
+# The canonical ingest contract, then the API itself.
+COPY packages/schema/python /opt/nexus-schema
+RUN pip install --no-cache-dir /opt/nexus-schema
+
+COPY apps/api/pyproject.toml apps/api/README.md ./
+COPY apps/api/src ./src
 RUN pip install --no-cache-dir .
 
 EXPOSE 8000
