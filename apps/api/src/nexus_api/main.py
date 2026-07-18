@@ -8,6 +8,7 @@ from nexus_api.logging import configure_logging
 from nexus_api.routers.chat import router as chat_router
 from nexus_api.routers.conversations import router as conversations_router
 from nexus_api.routers.providers import router as providers_router
+from nexus_api.routers.search import router as search_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -32,6 +33,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(providers_router, dependencies=gated)
     app.include_router(chat_router, dependencies=gated)
     app.include_router(conversations_router, dependencies=gated)
+    app.include_router(search_router, dependencies=gated)
 
     return app
 

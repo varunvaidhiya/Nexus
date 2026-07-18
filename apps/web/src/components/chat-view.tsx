@@ -8,11 +8,12 @@ import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError, apiFetch, getToken, type Provider } from "@/lib/api";
-import { streamChat, type DoneEvent } from "@/lib/chat";
+import { streamChat, type ContextUsed, type DoneEvent } from "@/lib/chat";
 
 interface ChatTurn {
   role: "user" | "assistant";
   content: string;
+  contextUsed?: ContextUsed;
 }
 
 interface ConversationDetail {
@@ -24,6 +25,7 @@ interface ConversationDetail {
 
 const LAST_PROVIDER_KEY = "nexus_last_provider";
 const LAST_MODEL_KEY = "nexus_last_model";
+const USE_CONTEXT_KEY = "nexus_use_context";
 
 export function ChatView({ conversationId }: { conversationId?: string }) {
   const router = useRouter();
@@ -34,6 +36,7 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
   const [provider, setProvider] = useState("");
   const [model, setModel] = useState("");
   const [streaming, setStreaming] = useState(false);
+  const [useContext, setUseContext] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [budget, setBudget] = useState<{
     spend: string;
@@ -49,6 +52,7 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
     }
     const load = setTimeout(async () => {
       try {
+        setUseContext(localStorage.getItem(USE_CONTEXT_KEY) === "1");
         const list = await apiFetch<Provider[]>("/providers");
         setProviders(list);
         const savedProvider = localStorage.getItem(LAST_PROVIDER_KEY);
@@ -119,12 +123,27 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
           provider,
           model,
           message,
+          use_context: useContext,
         },
         {
-          onMeta: (id) => {
-            setCurrentId(id);
+          onMeta: (meta) => {
+            setCurrentId(meta.conversation_id);
             // Keep the URL shareable without remounting mid-stream.
-            window.history.replaceState(null, "", `/chat/${id}`);
+            window.history.replaceState(
+              null,
+              "",
+              `/chat/${meta.conversation_id}`,
+            );
+            if (meta.context) {
+              setTurns((prev) => {
+                const next = [...prev];
+                next[next.length - 1] = {
+                  ...next[next.length - 1],
+                  contextUsed: meta.context ?? undefined,
+                };
+                return next;
+              });
+            }
           },
           onDelta: (text) =>
             setTurns((prev) => {
@@ -191,12 +210,17 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
             </span>
           )}
           <Button
-            variant="outline"
+            variant={useContext ? "default" : "outline"}
             size="sm"
-            disabled
-            title="Coming in Phase 2"
+            data-testid="context-toggle"
+            title="Prepend your profile, memory notes, and relevant history"
+            onClick={() => {
+              const next = !useContext;
+              setUseContext(next);
+              localStorage.setItem(USE_CONTEXT_KEY, next ? "1" : "0");
+            }}
           >
-            Context: clean
+            {useContext ? "Context: full" : "Context: clean"}
           </Button>
         </div>
       </header>
@@ -221,6 +245,23 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
             >
               {turn.role === "assistant" ? (
                 <div className="prose-chat">
+                  {turn.contextUsed && (
+                    <details className="text-muted-foreground mb-1 text-xs">
+                      <summary className="cursor-pointer">
+                        Context used
+                        {turn.contextUsed.profile ? " · profile" : ""}
+                        {turn.contextUsed.notes > 0
+                          ? ` · ${turn.contextUsed.notes} notes`
+                          : ""}
+                        {turn.contextUsed.messages > 0
+                          ? ` · ${turn.contextUsed.messages} past messages`
+                          : ""}
+                      </summary>
+                      <pre className="mt-1 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                        {turn.contextUsed.text}
+                      </pre>
+                    </details>
+                  )}
                   <ReactMarkdown>
                     {turn.content ||
                       (streaming && index === turns.length - 1 ? "…" : "")}

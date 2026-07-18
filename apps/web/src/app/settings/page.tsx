@@ -87,7 +87,60 @@ export default function SettingsPage() {
           ))
         )}
       </section>
+
+      <JobsSection />
     </div>
+  );
+}
+
+interface JobRun {
+  name: string;
+  status: string;
+  detail: string | null;
+  started_at: string;
+}
+
+function JobsSection() {
+  const [runs, setRuns] = useState<JobRun[] | null>(null);
+
+  useEffect(() => {
+    const load = setTimeout(async () => {
+      try {
+        setRuns(await apiFetch<JobRun[]>("/jobs?limit=12"));
+      } catch {
+        setRuns([]);
+      }
+    }, 0);
+    return () => clearTimeout(load);
+  }, []);
+
+  if (runs === null || runs.length === 0) return null;
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-lg font-medium">Background jobs</h2>
+      <p className="text-muted-foreground text-sm">
+        The worker embeds, summarizes, and distills your history on a schedule.
+      </p>
+      <div className="flex flex-col gap-1 font-mono text-xs">
+        {runs.map((run, index) => (
+          <div key={index} className="flex gap-2">
+            <span
+              className={
+                run.status === "error"
+                  ? "text-destructive w-16"
+                  : "text-muted-foreground w-16"
+              }
+            >
+              {run.status}
+            </span>
+            <span className="w-32">{run.name}</span>
+            <span className="text-muted-foreground truncate">
+              {run.detail ?? ""}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

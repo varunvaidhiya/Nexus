@@ -29,7 +29,9 @@ async def fake_stream_chat(
     system: str | None = None,
     max_tokens: int = 16000,
 ) -> AsyncIterator[TextDelta | Completion]:
-    captured_calls.append({"provider": provider_name, "model": model, "messages": list(messages)})
+    captured_calls.append(
+        {"provider": provider_name, "model": model, "messages": list(messages), "system": system}
+    )
     if model == "explode-mid-stream":
         yield TextDelta("partial ")
         raise GatewayError(ErrorKind.overloaded, provider_name, "boom", retryable=True)
@@ -203,6 +205,42 @@ def test_mid_stream_error_persists_partial(client: TestClient) -> None:
     with _db() as db:
         contents = [m.content for m in db.scalars(select(Message)).all()]
     assert "partial " in contents  # partial assistant output captured
+
+
+def test_chat_with_context_injects_system_prompt(client: TestClient) -> None:
+    from nexus_api.db.models import ProfileSnapshot
+
+    with _db() as db, db.begin():
+        db.add(ProfileSnapshot(content="Works on Nexus; prefers TypeScript."))
+
+    with client.stream(
+        "POST",
+        "/chat",
+        json={
+            "provider": "anthropic",
+            "model": "claude-sonnet-5",
+            "message": "hi",
+            "use_context": True,
+        },
+    ) as response:
+        events = _events(response)
+
+    meta = events[0][1]
+    assert meta["context"] is not None
+    assert meta["context"]["profile"] is True
+    assert "prefers TypeScript" in meta["context"]["text"]
+    # The same block reached the gateway as the system prompt.
+    assert "prefers TypeScript" in (captured_calls[-1]["system"] or "")
+
+    # Clean chats send no system prompt and report no context.
+    with client.stream(
+        "POST",
+        "/chat",
+        json={"provider": "anthropic", "model": "claude-sonnet-5", "message": "hi again"},
+    ) as response:
+        clean_meta = _events(response)[0][1]
+    assert clean_meta["context"] is None
+    assert captured_calls[-1]["system"] is None
 
 
 def test_conversation_endpoints(client: TestClient) -> None:

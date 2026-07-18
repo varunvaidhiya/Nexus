@@ -44,6 +44,8 @@ class ChatRequest(BaseModel):
     model: str = Field(min_length=1, max_length=200)
     message: str = Field(min_length=1)
     max_tokens: int = Field(default=16_000, ge=1, le=MAX_TOKENS_CAP)
+    # "with my full context": prepend profile + notes + relevant history.
+    use_context: bool = False
 
 
 def _session() -> Session:
@@ -77,7 +79,7 @@ def _history(session: Session, conversation_id: uuid.UUID) -> list[ChatMessage]:
 
 
 @router.post("/chat")
-def chat(body: ChatRequest) -> StreamingResponse:
+async def chat(body: ChatRequest) -> StreamingResponse:
     session = _session()
     try:
         # Pre-flight: key + budget, as plain HTTP errors before the stream opens.
@@ -120,6 +122,18 @@ def chat(body: ChatRequest) -> StreamingResponse:
 
         history = _history(session, conversation.id)
         monthly_budget = key_row.monthly_budget_usd
+
+        context = None
+        if body.use_context:
+            # Best-effort: a retrieval failure must not block the chat.
+            try:
+                from nexus_api.context.retrieval import build_context
+
+                context = await build_context(
+                    session, body.message, exclude_conversation_id=conversation.id
+                )
+            except Exception:
+                logger.exception("context retrieval failed; sending clean")
     except HTTPException:
         session.close()
         raise
@@ -130,7 +144,20 @@ def chat(body: ChatRequest) -> StreamingResponse:
     async def event_stream() -> AsyncIterator[str]:
         yield _sse(
             "meta",
-            {"conversation_id": str(conversation.id), "user_message_id": str(user_message.id)},
+            {
+                "conversation_id": str(conversation.id),
+                "user_message_id": str(user_message.id),
+                "context": (
+                    {
+                        "profile": context.profile_used,
+                        "notes": context.notes_count,
+                        "messages": context.messages_count,
+                        "text": context.text,
+                    }
+                    if context
+                    else None
+                ),
+            },
         )
         parts: list[str] = []
         completion: Completion | None = None
@@ -141,6 +168,7 @@ def chat(body: ChatRequest) -> StreamingResponse:
                 api_key=api_key,
                 model=body.model,
                 messages=history,
+                system=context.text if context else None,
                 max_tokens=body.max_tokens,
             ):
                 if isinstance(event, TextDelta):

@@ -55,6 +55,9 @@ export default function ChatListPage() {
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Conversations</h1>
         <div className="flex gap-2">
+          <Button variant="ghost" render={<Link href="/search" />}>
+            Search
+          </Button>
           <Button variant="ghost" render={<Link href="/settings" />}>
             Settings
           </Button>
