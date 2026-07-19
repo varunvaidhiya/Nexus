@@ -44,6 +44,9 @@ export default function Home() {
           </p>
           <div className="flex justify-center gap-2">
             <Button render={<Link href="/chat" />}>Open chat</Button>
+            <Button variant="outline" render={<Link href="/today" />}>
+              Today
+            </Button>
             <Button variant="outline" render={<Link href="/settings" />}>
               Settings
             </Button>

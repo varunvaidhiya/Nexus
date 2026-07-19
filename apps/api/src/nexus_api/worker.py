@@ -10,7 +10,7 @@ import asyncio
 import structlog
 
 from nexus_api.config import get_settings
-from nexus_api.jobs import pipeline
+from nexus_api.jobs import assistant, pipeline
 from nexus_api.jobs.framework import run_job
 from nexus_api.logging import configure_logging
 
@@ -21,6 +21,10 @@ JOBS = [
     ("summarize", pipeline.summarize_pending),
     ("embed_notes", pipeline.embed_notes),
     ("rebuild_profile", pipeline.rebuild_profile),
+    # Assistant layer — runs after summarize so extraction sees fresh summaries.
+    ("extract_tasks", assistant.extract_tasks),
+    ("detect_loose_ends", assistant.detect_loose_ends),
+    ("weekly_review", assistant.weekly_review),
 ]
 
 
