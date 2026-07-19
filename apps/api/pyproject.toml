@@ -1,6 +1,6 @@
 [project]
 name = "nexus-api"
-version = "0.1.0"
+version = "1.0.0"
 description = "Nexus backend — ingest, context engine, provider gateway, assistant, handoff, MCP."
 requires-python = ">=3.11"
 dependencies = [

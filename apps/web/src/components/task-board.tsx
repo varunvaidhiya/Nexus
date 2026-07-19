@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -168,6 +169,17 @@ function TaskCard({
               </option>
             ))}
           </select>
+        )}
+        {task.status !== "done" && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs"
+            render={<Link href={`/handoff?task=${task.id}`} />}
+            data-testid="handoff-link"
+          >
+            Hand off
+          </Button>
         )}
       </div>
     </div>

@@ -46,6 +46,22 @@ nexus-agent sync   # one pass, then exit
 nexus-agent run    # keep syncing every interval_seconds
 ```
 
+## Local handoff (opt-in)
+
+The agent's single write capability (spec §5.2): fetch a context brief from
+the backend and drop it into a repo as `NEXUS_BRIEF.md`, so a local tool can
+pick the work up. Off by default — enable per machine:
+
+```toml
+[handoff]
+enabled = true
+```
+
+```bash
+nexus-agent handoff --repo ~/code/webapp --task <task-uuid>
+nexus-agent handoff --repo ~/code/webapp --task <task-uuid> --launch  # also start claude there
+```
+
 ## How it works
 
 - **Read-only.** The agent never writes to tool directories; it only reads

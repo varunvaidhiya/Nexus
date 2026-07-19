@@ -4,9 +4,9 @@
 > every tool into one memory, lets you chat with any provider using your own keys,
 > hands off tasks with enriched context, and acts as a goal-tracking personal assistant.
 
-**Status: 🚧 Planning / pre-implementation.** See the
-[Implementation Plan](docs/IMPLEMENTATION_PLAN.md) and the
-[Product Spec](docs/SPEC.md).
+**Status: ✅ v1.0 — all six roadmap phases implemented.** See the
+[Changelog](CHANGELOG.md), [Implementation Plan](docs/IMPLEMENTATION_PLAN.md),
+and [Product Spec](docs/SPEC.md).
 
 ---
 
@@ -112,7 +112,10 @@ nexus/
 │   └── schema/       # Shared canonical types (Conversation/Message/...)
 ├── docs/
 │   ├── SPEC.md                  # Product spec / PRD
-│   └── IMPLEMENTATION_PLAN.md   # Phase-by-phase build plan
+│   ├── IMPLEMENTATION_PLAN.md   # Phase-by-phase build plan
+│   ├── MCP.md                   # Wiring Claude Code / Cursor to /mcp
+│   ├── OPERATIONS.md            # Backup, restore, upgrade
+│   └── SECURITY.md              # v1.0 security review (spec §13)
 ├── docker-compose.yml           # Postgres+pgvector, api, web, worker
 └── README.md
 ```
@@ -145,6 +148,8 @@ This app stores *all* of your AI conversations — it is highly sensitive by des
 - The extension only runs on **allowlisted domains**, with a per-site capture toggle.
 - The whole stack runs behind your own auth, on your own machine or VPS. Private
   deployment is the default; there is no hosted/multi-user mode in v1.
+
+Full review: [docs/SECURITY.md](docs/SECURITY.md). Backups: [docs/OPERATIONS.md](docs/OPERATIONS.md).
 
 ## Non-goals (v1)
 

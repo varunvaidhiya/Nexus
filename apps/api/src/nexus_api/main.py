@@ -2,14 +2,16 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from nexus_api import __version__
-from nexus_api.auth import require_auth, require_ingest_auth
+from nexus_api.auth import require_auth, require_device_auth
 from nexus_api.config import Settings, get_settings
 from nexus_api.logging import configure_logging
 from nexus_api.routers.chat import router as chat_router
 from nexus_api.routers.conversations import router as conversations_router
 from nexus_api.routers.devices import router as devices_router
 from nexus_api.routers.goals import router as goals_router
+from nexus_api.routers.handoff import router as handoff_router
 from nexus_api.routers.ingest import router as ingest_router
+from nexus_api.routers.mcp import router as mcp_router
 from nexus_api.routers.providers import router as providers_router
 from nexus_api.routers.search import router as search_router
 from nexus_api.routers.sources import router as sources_router
@@ -45,8 +47,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(tasks_router, dependencies=gated)
     app.include_router(goals_router, dependencies=gated)
     app.include_router(today_router, dependencies=gated)
-    # Ingest additionally accepts device tokens (agent/extension).
-    app.include_router(ingest_router, dependencies=[Depends(require_ingest_auth)])
+    # Companion-tool routes additionally accept device tokens: ingest
+    # (agent/extension), handoff (agent primer files), and MCP (spec §5.3).
+    device_gated = [Depends(require_device_auth)]
+    app.include_router(ingest_router, dependencies=device_gated)
+    app.include_router(handoff_router, dependencies=device_gated)
+    app.include_router(mcp_router, dependencies=device_gated)
 
     return app
 
