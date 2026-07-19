@@ -120,6 +120,9 @@ class Conversation(Base):
     # When the summary/distillation pipeline last processed this conversation;
     # NULL or older than updated_at means it needs (re)processing.
     summarized_at: Mapped[datetime | None]
+    # Same bookkeeping for the task-extraction and loose-end passes.
+    tasks_extracted_at: Mapped[datetime | None]
+    loose_end_checked_at: Mapped[datetime | None]
 
     source: Mapped[Source] = relationship(back_populates="conversations")
     messages: Mapped[list["Message"]] = relationship(
@@ -247,6 +250,39 @@ class GoalTask(Base):
     task_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("task.id", ondelete="CASCADE"), primary_key=True
     )
+
+
+class Suggestion(Base):
+    """Assistant nudges (today: loose-end detections). One row per
+    conversation; a dismissed row is permanent negative feedback — the
+    detector never re-raises that conversation."""
+
+    __tablename__ = "suggestion"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    kind: Mapped[str] = mapped_column(String(50), server_default="loose_end")
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("conversation.id", ondelete="CASCADE"), unique=True
+    )
+    reason: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
+    dismissed_at: Mapped[datetime | None]
+
+
+class Review(Base):
+    """Generated weekly reviews (markdown), one per period."""
+
+    __tablename__ = "review"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    period_start: Mapped[date] = mapped_column(unique=True)
+    period_end: Mapped[date]
+    content: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
 
 
 class MemoryNote(Base):
