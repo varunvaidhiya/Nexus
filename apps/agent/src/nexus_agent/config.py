@@ -27,6 +27,14 @@ class ToolConfig:
 
 
 @dataclass
+class HandoffConfig:
+    """The agent's single write capability (spec §5.2): writing a primer file
+    into a repo you name. Off by default; enable per machine."""
+
+    enabled: bool = False
+
+
+@dataclass
 class AgentConfig:
     backend_url: str
     token: str
@@ -34,6 +42,7 @@ class AgentConfig:
     tools: dict[str, ToolConfig] = field(default_factory=dict)
     state_path: Path = Path("~/.local/state/nexus-agent/state.json")
     interval_seconds: int = 120
+    handoff: HandoffConfig = field(default_factory=HandoffConfig)
 
 
 def load_config(path: Path | None = None) -> AgentConfig:
@@ -65,6 +74,7 @@ def _parse(path: Path) -> AgentConfig:
     }
     agent = raw.get("agent") or {}
     state_path = agent.get("state_path", "~/.local/state/nexus-agent/state.json")
+    handoff = raw.get("handoff") or {}
     return AgentConfig(
         backend_url=str(url).rstrip("/"),
         token=str(token),
@@ -72,4 +82,5 @@ def _parse(path: Path) -> AgentConfig:
         tools=tools or {"claude_code": ToolConfig()},
         state_path=Path(state_path).expanduser(),
         interval_seconds=int(agent.get("interval_seconds", 120)),
+        handoff=HandoffConfig(enabled=bool(handoff.get("enabled", False))),
     )

@@ -252,6 +252,24 @@ class GoalTask(Base):
     )
 
 
+class Handoff(Base):
+    """Log of context packages generated for other tools ("Continue in ___")."""
+
+    __tablename__ = "handoff"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    target: Mapped[str] = mapped_column(String(50))
+    task_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("task.id", ondelete="SET NULL"))
+    conversation_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("conversation.id", ondelete="SET NULL")
+    )
+    brief: Mapped[str | None] = mapped_column(Text)
+    note: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
+
+
 class Suggestion(Base):
     """Assistant nudges (today: loose-end detections). One row per
     conversation; a dismissed row is permanent negative feedback — the

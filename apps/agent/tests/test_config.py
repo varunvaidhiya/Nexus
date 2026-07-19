@@ -44,6 +44,15 @@ def test_defaults(tmp_path: Path) -> None:
     assert config.machine_name == "local"
     assert list(config.tools) == ["claude_code"]
     assert config.tools["claude_code"].enabled
+    assert config.handoff.enabled is False  # writes are opt-in
+
+
+def test_handoff_opt_in(tmp_path: Path) -> None:
+    config_file = tmp_path / "nexus-agent.toml"
+    config_file.write_text(
+        '[backend]\nurl = "http://x"\ntoken = "t"\n\n[handoff]\nenabled = true\n'
+    )
+    assert load_config(config_file).handoff.enabled is True
 
 
 def test_missing_token_rejected(tmp_path: Path) -> None:

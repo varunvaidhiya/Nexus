@@ -1,6 +1,6 @@
 """POST /ingest — canonical batches from the agent, extension, and importer.
 
-Authenticated by the main token or a device token (see auth.require_ingest_auth,
+Authenticated by the main token or a device token (see auth.require_device_auth,
 applied at mount time in main.py).
 """
 

@@ -77,8 +77,9 @@ export function DevicesSection() {
       <div>
         <h2 className="text-lg font-medium">Devices</h2>
         <p className="text-muted-foreground text-sm">
-          Tokens for the companion agent and browser extension. They can only
-          push to /ingest — never read your data.
+          Tokens for companion tools: the agent and extension push to /ingest,
+          and MCP clients (Claude Code, Cursor) read memory via /mcp. They never
+          unlock the main app or your provider keys.
         </p>
       </div>
 

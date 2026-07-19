@@ -44,11 +44,12 @@ def require_auth(
         )
 
 
-def require_ingest_auth(
+def require_device_auth(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
 ) -> None:
-    """Ingest accepts the main auth token OR an active device token, so the
-    agent and extension never need to hold the primary credential."""
+    """Routes for companion tools (/ingest, /handoff, /mcp) accept the main
+    auth token OR an active device token, so the agent, extension, and MCP
+    clients never need to hold the primary credential."""
     expected = get_settings().auth_token
     if (
         expected is not None
